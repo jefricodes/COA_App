@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Daftar Petty Cash{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-cash-coin"></i> Daftar Petty Cash</h3>
+    <a href="{% url 'petty_cash:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Catat Baru</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>No. Bukti</th>
+                        <th>Tanggal</th>
+                        <th>Tipe</th>
+                        <th>Deskripsi</th>
+                        <th>Jumlah</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr>
+                        <td><strong>{{ entry.entry_number }}</strong></td>
+                        <td>{{ entry.entry_date|date:"d M Y" }}</td>
+                        <td>
+                            <span class="badge {% if entry.entry_type == 'in' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ entry.get_entry_type_display }}
+                            </span>
+                        </td>
+                        <td>{{ entry.description|truncatechars:40 }}</td>
+                        <td>Rp {{ entry.amount|floatformat:0 }}</td>
+                        <td>
+                            {% if entry.status == 'approved' %}
+                                <span class="badge bg-success">Disetujui</span>
+                            {% elif entry.status == 'rejected' %}
+                                <span class="badge bg-danger">Ditolak</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Menunggu</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if entry.receipt_file %}
+                                <a href="{{ entry.receipt_file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Lihat Bukti">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">Belum ada data pencatatan.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

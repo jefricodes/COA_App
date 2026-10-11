@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Approval Pegawai Baru{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-person-check"></i> Approval Pegawai Baru</h3>
+    <a href="{% url 'dashboard:index' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Kembali
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% if pending_users %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Username</th>
+                        <th>Nama Lengkap</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Departemen</th>
+                        <th>Tanggal Daftar</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in pending_users %}
+                    <tr>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td>{{ user.get_full_name|default:"-" }}</td>
+                        <td>{{ user.email|default:"-" }}</td>
+                        <td>
+                            <span class="badge bg-info text-dark">{{ user.get_role_display }}</span>
+                        </td>
+                        <td>
+                            {% if user.department %}
+                                {{ user.department.name }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.date_joined|date:"d M Y, H:i" }}</td>
+                        <td class="text-center">
+                            <form method="POST" action="{% url 'accounts:approve_user' user.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm" 
+                                        onclick="return confirm('Yakin ingin mengaktifkan akun {{ user.username }}?')">
+                                    <i class="bi bi-check-circle"></i> Approve
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <p class="text-muted mt-2">Tidak ada pegawai baru yang menunggu persetujuan.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Hapus Jurnal {{ journal.journal_number }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Konfirmasi Hapus</h5>
+            </div>
+            <div class="card-body">
+                <p>Apakah Anda yakin ingin menghapus jurnal ini?</p>
+                <ul class="list-unstyled">
+                    <li><strong>No. Jurnal:</strong> {{ journal.journal_number }}</li>
+                    <li><strong>Tanggal:</strong> {{ journal.entry_date|date:"d M Y" }}</li>
+                    <li><strong>Deskripsi:</strong> {{ journal.description|truncatechars:50 }}</li>
+                    <li><strong>Total:</strong> Rp {{ journal.total_debit|floatformat:0 }}</li>
+                </ul>
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i> Tindakan ini tidak dapat dibatalkan!
+                </div>
+            </div>
+            <div class="card-footer">
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Ya, Hapus
+                    </button>
+                    <a href="{% url 'journal:detail' journal.pk %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Batal
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

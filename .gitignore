@@ -1,0 +1,27 @@
+
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database
+db.sqlite3
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Static & Media (akan di-generate di server)
+staticfiles/
+media/
+
+# Mac OS
+.DS_Store

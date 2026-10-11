@@ -1,0 +1,301 @@
+/* ==========================================
+   1. RESET & BASE
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+    font-family: 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==========================================
+   2. NAVBAR TOP
+   ========================================== */
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    background: #212529;
+    height: 70px;
+}
+
+/* ==========================================
+   3. SIDEBAR DESKTOP
+   ========================================== */
+.sidebar {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 250px;
+    z-index: 1000;
+    transition: all 0.3s;
+}
+
+.sidebar a {
+    color: rgba(255,255,255,0.8);
+    padding: 12px 20px;
+    display: block;
+    text-decoration: none;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar a:hover, .sidebar a.active {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border-left-color: #fff;
+}
+
+.sidebar h6 {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 15px 20px 5px;
+    margin: 0;
+}
+
+/* ==========================================
+   4. MAIN CONTENT
+   ========================================== */
+.main-content {
+    margin-left: 0;
+    padding-top: 70px;
+    min-height: 100vh;
+    transition: all 0.3s;
+}
+
+.main-content.with-sidebar {
+    margin-left: 250px;
+}
+
+/* ==========================================
+   5. MESSAGES CONTAINER (Fixed Position)
+   ========================================== */
+.messages-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1002;
+    max-width: 400px;
+    width: 100%;
+}
+
+.messages-container .alert {
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ========================================== */
+/* LOGIN PAGE STYLES                          */
+/* ========================================== */
+.login-card {
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+.login-card .card-header {
+    background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+    border-radius: 10px 10px 0 0;
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+
+.login-card .card-header h3 {
+    color: white;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.login-card .card-header p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.login-card .card-body {
+    padding: 2rem 1.5rem;
+}
+
+.btn-login {
+    background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.btn-login:hover {
+    background: linear-gradient(135deg, #283593 0%, #3949ab 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26, 35, 126, 0.3);
+    color: white;
+}
+
+.divider {
+    margin: 1.5rem 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.register-link {
+    color: #1a237e;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.register-link:hover {
+    color: #283593;
+    text-decoration: underline;
+}
+
+/* ========================================== */
+/* REGISTER PAGE STYLES                       */
+/* ========================================== */
+.register-card {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 2rem auto;
+    border-radius: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a237e;
+    margin: 1.5rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.section-title i {
+    margin-right: 0.5rem;
+}
+
+/* Override untuk auth wrapper */
+.auth-wrapper {
+    min-height: calc(100vh - 70px) !important;
+    padding: 2rem 1rem !important;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+
+/* Khusus login card, center vertikal */
+.auth-wrapper:has(.login-card) {
+    align-items: center;
+}
+
+/* ==========================================
+   7. MOBILE RESPONSIVE
+   ========================================== */
+@media (max-width: 767.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 250px;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content.with-sidebar {
+        margin-left: 0;
+    }
+    
+    .messages-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+    
+    .sidebar-overlay.show {
+        display: block;
+    }
+}
+
+@media (min-width: 768px) {
+    .sidebar-overlay {
+        display: none !important;
+    }
+}
+
+/* ==========================================
+   8. UTILITIES & BADGES
+   ========================================== */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+/* Animasi untuk messages alert */
+.alert {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Styling khusus untuk alert di dashboard */
+.main-content .alert {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.main-content .alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-left: 4px solid #28a745;
+}
+
+.main-content .alert-info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    border-left: 4px solid #17a2b8;
+}
+
+.main-content .alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-left: 4px solid #ffc107;
+}
+
+.main-content .alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-left: 4px solid #dc3545;
+}

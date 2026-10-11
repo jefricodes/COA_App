@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Buat Reimbursement Baru{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Form Request Reimbursement</h5>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Info Pegawai (Read Only) -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nama Pegawai</label>
+                            <input type="text" class="form-control" value="{{ employee.full_name }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Departemen</label>
+                            <input type="text" class="form-control" value="{{ employee.department.name }}" readonly>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Field Form -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Deskripsi Pengeluaran <span class="text-danger">*</span></label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Jumlah (Rp) <span class="text-danger">*</span></label>
+                        {{ form.amount }}
+                        {% if form.amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.amount.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Masukkan angka tanpa titik atau koma. Contoh: 1500000</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Upload Bukti Transaksi (Struk/Faktur)</label>
+                        {{ form.receipt_file }}
+                        {% if form.receipt_file.errors %}
+                            <div class="text-danger small mt-1">{{ form.receipt_file.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Format: JPG, PNG, atau PDF. Maksimal 5MB. (Opsional)</div>
+                    </div>
+
+                    <!-- Tombol Aksi -->
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'reimbursement:list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Batal
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Simpan Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

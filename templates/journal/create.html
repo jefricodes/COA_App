@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Buat Jurnal Baru{% endblock %}
+
+{% block content %}
+<h3 class="mb-4"><i class="bi bi-plus-circle"></i> Buat Jurnal Baru</h3>
+
+<!-- Tampilkan error detail jika ada -->
+{% if messages %}
+<div class="alert alert-danger">
+    <strong>Error:</strong>
+    <ul class="mb-0">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+    
+    <!-- Informasi Jurnal -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Informasi Jurnal</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tanggal Jurnal *</label>
+                    {{ form.entry_date }}
+                    {% if form.entry_date.errors %}
+                    <div class="text-danger small">{{ form.entry_date.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Bulan Periode *</label>
+                    {{ form.period_month }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Tahun Periode *</label>
+                    {{ form.period_year }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Departemen *</label>
+                    {{ form.department }}
+                    {% if form.department.errors %}
+                    <div class="text-danger small">{{ form.department.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Deskripsi </label>
+                    {{ form.description }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Baris Jurnal -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Baris Jurnal (Minimal 2 baris)</h5>
+        </div>
+        <div class="card-body">
+            {{ formset.management_form }}
+            
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Akun</th>
+                            <th>Deskripsi *</th>
+                            <th class="text-end">Debit</th>
+                            <th class="text-end">Kredit</th>
+                            <th class="text-center">Hapus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for line_form in formset %}
+                        <tr>
+                            <td>
+                                {{ line_form.account }}
+                                {% if line_form.account.errors %}
+                                <div class="text-danger small">{{ line_form.account.errors.0 }}</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ line_form.description }}</td>
+                            <td>{{ line_form.debit_amount }}</td>
+                            <td>{{ line_form.credit_amount }}</td>
+                            <td class="text-center">{{ line_form.DELETE }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-save"></i> Simpan Jurnal
+        </button>
+        <a href="{% url 'journal:list' %}" class="btn btn-secondary">
+            <i class="bi bi-x-circle"></i> Batal
+        </a>
+    </div>
+</form>
+{% endblock %}

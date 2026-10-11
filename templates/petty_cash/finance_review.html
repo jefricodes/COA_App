@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Review Petty Cash{% endblock %}
+
+{% block content %}
+<h3 class="mb-4"><i class="bi bi-check2-square"></i> Review Petty Cash (Admin)</h3>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>No. Bukti</th>
+                        <th>Tanggal</th>
+                        <th>Departemen</th>
+                        <th>Tipe</th>
+                        <th>Deskripsi</th>
+                        <th>Jumlah</th>
+                        <th>Bukti Upload</th>
+                        <th>Pilih Akun (COA)</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr>
+                        <td><strong>{{ entry.entry_number }}</strong></td>
+                        <td>{{ entry.entry_date|date:"d M Y" }}</td>
+                        <td>{{ entry.department.name }}</td>
+                        <td>
+                            {% if entry.entry_type == 'in' %}
+                                <span class="badge bg-success">Uang Masuk</span>
+                            {% else %}
+                                <span class="badge bg-danger">Uang Keluar</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ entry.description|truncatechars:30 }}</td>
+                        <td class="fw-bold">Rp {{ entry.amount|floatformat:0 }}</td>
+                        <td>
+                            {% if entry.receipt_file %}
+                                <a href="{{ entry.receipt_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Bukti">
+                                    <i class="bi bi-file-earmark"></i> Lihat
+                                </a>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="POST" action="{% url 'petty_cash:finance_approve' entry.pk %}" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <select name="account" class="form-select form-select-sm" required>
+                                    <option value="">-- Pilih Akun --</option>
+                                    {% for coa in coa_list %}
+                                        <option value="{{ coa.id }}">{{ coa.code }} - {{ coa.name }}</option>
+                                    {% endfor %}
+                                </select>
+                        </td>
+                        <td>
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-lg"></i> Setujui
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">Tidak ada data yang menunggu review.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
