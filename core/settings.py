@@ -5,27 +5,19 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# ==========================================
-# PERBAIKAN PYMYSQL (Trik agar Django menerima versinya)
-# ==========================================
 import pymysql
 pymysql.version_info = (2, 2, 1, "final", 0) 
 pymysql.install_as_MySQLdb()
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.pythonanywhere.com,.workers.dev').split(',')
 
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -33,10 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # 'storages' UNTUK CLOUDFLARE R2
-    'storages',
-    
+    'storages', # Untuk Cloudflare R2
     'accounts',
     'journal',
     'reimbursement',
@@ -78,7 +67,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database
+# Database (MySQL PythonAnywhere)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -94,7 +83,6 @@ DATABASES = {
     }
 }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -102,7 +90,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -115,15 +102,14 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Konfigurasi Cloudflare R2 (S3 Compatible)
+# Konfigurasi Cloudflare R2
 AWS_ACCESS_KEY_ID = os.getenv('R2_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('R2_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('R2_BUCKET_NAME')
-AWS_S3_ENDPOINT_URL = os.getenv('R2_ENDPOINT_URL') # Contoh: https://<account_id>.r2.cloudflarestorage.com
-AWS_S3_REGION_NAME = 'auto' # Cloudflare R2 menggunakan region 'auto'
-AWS_DEFAULT_ACL = 'public-read' # Ubah ke 'private' jika file tidak boleh diakses publik langsung
+AWS_S3_ENDPOINT_URL = os.getenv('R2_ENDPOINT_URL')
+AWS_S3_REGION_NAME = 'auto'
+AWS_DEFAULT_ACL = 'public-read'
 
-# Konfigurasi Modern Django 4.2+ untuk Storage
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
@@ -133,7 +119,6 @@ STORAGES = {
     },
 }
 
-# URL untuk mengakses file media (akan mengarah ke Cloudflare R2)
 MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
 
 # Email
@@ -150,7 +135,7 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# Production Security
+# Production Security (PythonAnywhere sudah handle SSL di edge, jadi False aman)
 SECURE_SSL_REDIRECT = False 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True       

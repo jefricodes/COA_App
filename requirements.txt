@@ -6,7 +6,7 @@ python-dotenv==1.2.4
 sqlparse==0.6.0
 whitenoise==6.12.0
 
-# PENGGANTI mysqlclient (Pure Python, 100% kompatibel dengan serverless/Cloudflare)
+# Driver Database (Pure Python, kompatibel dengan PythonAnywhere)
 PyMySQL==1.1.1
 
 # Library untuk Cloudflare R2 (S3 Compatible Storage)
