@@ -2,7 +2,7 @@ export default {
   async fetch(request, env, ctx) {
     // PENTING: Ganti URL di bawah ini dengan URL PythonAnywhere Anda nanti!
     // Contoh: "https://mesrini.pythonanywhere.com"
-    const TARGET_URL = "https://GANTI_DENGAN_USERNAME_ANDA.pythonanywhere.com";
+    const TARGET_URL = "https://jeffCode.pythonanywhere.com";
     
     const url = new URL(request.url);
     const target = new URL(TARGET_URL);

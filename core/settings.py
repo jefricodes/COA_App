@@ -5,10 +5,6 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-import pymysql
-pymysql.version_info = (2, 2, 1, "final", 0) 
-pymysql.install_as_MySQLdb()
-
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -67,19 +63,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database (MySQL PythonAnywhere)
+# Ganti seluruh blok DATABASES dengan ini (SQLite)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', '3306'),
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
