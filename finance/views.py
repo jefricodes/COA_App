@@ -113,7 +113,6 @@ def _create_journal_for_reimbursement(reimbursement, user):
     
     today = timezone.now().date()
     
-    # Buat Journal Entry
     journal = JournalEntry.objects.create(
         journal_number=f"JRN-AUTO-{today.strftime('%Y%m%d')}-{reimbursement.id}",
         entry_date=today,
@@ -201,10 +200,8 @@ def monthly_close(request):
 
 @finance_approver_required
 def general_transaction_list(request):
-    """Menampilkan daftar General Transaction."""
+
     transactions = GeneralTransaction.objects.all().order_by('-transaction_date')
-    
-    # Filter opsional berdasarkan tipe transaksi
     type_filter = request.GET.get('type')
     if type_filter:
         transactions = transactions.filter(transaction_type=type_filter)
@@ -219,22 +216,18 @@ def general_transaction_list(request):
 @finance_approver_required
 @transaction.atomic
 def general_transaction_create(request):
-    """Membuat General Transaction dan otomatis membuat Jurnal Entry."""
     if request.method == 'POST':
         form = GeneralTransactionForm(request.POST)
         if form.is_valid():
             try:
-                # 1. Simpan General Transaction dulu (tanpa nomor & jurnal)
                 gt = form.save(commit=False)
                 gt.created_by = request.user
                 gt.transaction_number = "TEMP"
                 gt.save()
 
-                # Update nomor transaksi setelah ID didapat
                 gt.transaction_number = f"GT-{gt.transaction_date.strftime('%Y%m%d')}-{gt.id:04d}"
                 gt.save(update_fields=['transaction_number'])
 
-                # 2. Cari Akun Kas (Counterpart)
                 cash_account = ChartOfAccount.objects.filter(
                     code__startswith='1-', 
                     name__icontains='kas',
@@ -242,20 +235,17 @@ def general_transaction_create(request):
                 ).first()
 
                 if not cash_account:
-                    # Hapus GT yang baru dibuat agar tidak ada data sampah
                     gt.delete()
                     messages.error(request, 
                         "Akun Kas (dengan kode 1-xxx dan nama mengandung 'Kas') tidak ditemukan di Chart of Account. "
                         "Silakan buat akun Kas terlebih dahulu di Django Admin.")
                     return redirect('finance:general_transaction_create')
 
-                # 3. Validasi akun yang dipilih user
                 if not gt.account:
                     gt.delete()
                     messages.error(request, "Akun transaksi harus dipilih!")
                     return redirect('finance:general_transaction_create')
 
-                # 4. Buat Journal Entry Otomatis
                 journal = JournalEntry.objects.create(
                     journal_number=f"JRN-GT-{gt.transaction_date.strftime('%Y%m%d')}-{gt.id:04d}",
                     entry_date=gt.transaction_date,
@@ -268,9 +258,7 @@ def general_transaction_create(request):
                     period_year=gt.transaction_date.year,
                 )
 
-                # 5. Buat Baris Jurnal berdasarkan Tipe Transaksi
                 if gt.transaction_type == 'income':
-                    # Pemasukan: Debit Kas, Kredit Akun Tujuan
                     JournalEntryLine.objects.create(
                         journal=journal, 
                         account=cash_account, 
@@ -287,7 +275,6 @@ def general_transaction_create(request):
                     )
                 
                 elif gt.transaction_type == 'expense':
-                    # Pengeluaran: Debit Akun Tujuan, Kredit Kas
                     JournalEntryLine.objects.create(
                         journal=journal, 
                         account=gt.account, 
@@ -304,7 +291,6 @@ def general_transaction_create(request):
                     )
                 
                 elif gt.transaction_type == 'transfer':
-                    # Transfer: Debit Akun Tujuan, Kredit Kas
                     JournalEntryLine.objects.create(
                         journal=journal, 
                         account=gt.account, 
@@ -320,7 +306,6 @@ def general_transaction_create(request):
                         credit_amount=gt.amount
                     )
 
-                # 6. Hitung Total & Simpan Relasi
                 journal._calculate_totals()
                 journal.save(update_fields=['total_debit', 'total_credit'])
 
@@ -332,7 +317,6 @@ def general_transaction_create(request):
                 return redirect('finance:general_transaction_list')
 
             except ValidationError as e:
-                # PERBAIKAN: Gunakan str(e) untuk mendapatkan pesan error
                 error_msg = str(e)
                 messages.error(request, f'Gagal membuat transaksi: {error_msg}')
             except Exception as e:

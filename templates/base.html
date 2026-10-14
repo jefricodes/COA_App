@@ -54,62 +54,66 @@
     {% if user.is_authenticated %}
     <nav class="sidebar" id="sidebar">
         <h6>MENU UTAMA</h6>
-        <a href="{% url 'dashboard:index' %}">
-            <i class="bi bi-speedometer2"></i> Dashboard
+        <a href="{% url 'dashboard:index' %}" class="{% if request.resolver_match.view_name == 'dashboard:index' %}active{% endif %}">
+            <span><i class="bi bi-speedometer2 me-2"></i> Dashboard</span>
         </a>
 
-   {% if not user.is_superuser %}
-    <h6>LAYANAN PEGAWAI</h6>
-    <a href="{% url 'reimbursement:list' %}">
-        <i class="bi bi-receipt"></i> Reimbursement
-    </a>
-    <a href="{% url 'petty_cash:list' %}">
-        <i class="bi bi-cash-coin"></i> Petty Cash
-    </a>
-    {% endif %}
+        {% if not user.is_superuser %}
+        <h6>LAYANAN PEGAWAI</h6>
+        <a href="{% url 'reimbursement:list' %}" class="{% if request.resolver_match.view_name == 'reimbursement:list' %}active{% endif %}">
+            <span><i class="bi bi-receipt me-2"></i> Reimbursement</span>
+        </a>
+        <a href="{% url 'petty_cash:list' %}" class="{% if request.resolver_match.view_name == 'petty_cash:list' %}active{% endif %}">
+            <span><i class="bi bi-cash-coin me-2"></i> Petty Cash</span>
+        </a>
+        {% endif %}
 
         {% if user.is_accountant %}
         <h6>ADMIN FINANCE</h6>
-        <a href="{% url 'journal:list' %}">
-            <i class="bi bi-journal-text"></i> Jurnal Manual
+        <a href="{% url 'journal:list' %}" class="{% if request.resolver_match.view_name == 'journal:list' %}active{% endif %}">
+            <span><i class="bi bi-journal-text me-2"></i> Jurnal Manual</span>
         </a>
 
-        <a href="{% url 'finance:review_reimbursements' %}">
-            <i class="bi bi-check2-square"></i> Review Reimbursement
+        <a href="{% url 'finance:review_reimbursements' %}" class="{% if request.resolver_match.view_name == 'finance:review_reimbursements' %}active{% endif %}">
+            <span>
+                <i class="bi bi-check2-square me-2"></i> Review Reimbursement</span>
             {% if pending_reimbursement_count > 0 %}
-                <span class="badge bg-danger rounded-pill float-end">{{ pending_reimbursement_count }}</span>
+            <span class="badge bg-danger">{{ pending_reimbursement_count }}</span>
             {% endif %}
         </a>
-        <a href="{% url 'petty_cash:finance_review' %}">
-            <i class="bi bi-journal-check"></i> Review Petty Cash
+
+        <a href="{% url 'petty_cash:finance_review' %}" class="{% if request.resolver_match.view_name == 'petty_cash:finance_review' %}active{% endif %}">
+            <span><i class="bi bi-journal-check me-2"></i> Review Petty Cash</span>
             {% if pending_petty_cash_count > 0 %}
-                <span class="badge bg-danger rounded-pill float-end">{{ pending_petty_cash_count }}</span>
+            <span class="badge bg-danger">{{ pending_petty_cash_count }}</span>
             {% endif %}
         </a>
 
-        <a href="{% url 'finance:general_transaction_list' %}">
-            <i class="bi bi-arrow-left-right"></i> General Transaction
+        <a href="{% url 'finance:general_transaction_list' %}" class="{% if request.resolver_match.view_name == 'finance:general_transaction_list' %}active{% endif %}">
+            <span><i class="bi bi-arrow-left-right me-2"></i> General Transaction</span>
         </a>
+        
+        <a href="{% url 'finance:monthly_close' %}" class="{% if request.resolver_match.view_name == 'finance:monthly_close' %}active{% endif %}">
+            <span><i class="bi bi-calendar-check me-2"></i> Tutup Buku</span>
         </a>
-        <a href="{% url 'finance:monthly_close' %}">
-            <i class="bi bi-calendar-check"></i> Tutup Buku
-        </a>
-        <a href="{% url 'reports:profit_loss' %}">
-            <i class="bi bi-graph-up"></i> Laporan P&L
+        
+        <a href="{% url 'reports:profit_loss' %}" class="{% if request.resolver_match.view_name == 'reports:profit_loss' %}active{% endif %}">
+            <span><i class="bi bi-graph-up me-2"></i> Laporan P&L</span>
         </a>
 
-        <a href="{% url 'reports:trial_balance' %}">
-            <i class="bi bi-journal-text"></i> Neraca Saldo
+        <a href="{% url 'reports:trial_balance' %}" class="{% if request.resolver_match.view_name == 'reports:trial_balance' %}active{% endif %}">
+            <span><i class="bi bi-journal-text me-2"></i> Neraca Saldo</span>
         </a>
-        <a href="{% url 'reports:balance_sheet' %}">
-            <i class="bi bi-file-earmark-bar-graph"></i> Neraca (Balance Sheet)
+        
+        <a href="{% url 'reports:balance_sheet' %}" class="{% if request.resolver_match.view_name == 'reports:balance_sheet' %}active{% endif %}">
+            <span><i class="bi bi-file-earmark-bar-graph me-2"></i> Neraca (Balance Sheet)</span>
         </a>
         {% endif %}
 
         {% if user.is_superuser %}
         <h6>ADMIN SYSTEM</h6>
-        <a href="{% url 'accounts:pending_users_list' %}">
-            <i class="bi bi-person-check"></i> Approval Pegawai
+        <a href="{% url 'accounts:pending_users_list' %}" class="{% if request.resolver_match.view_name == 'accounts:pending_users_list' %}active{% endif %}">
+            <span><i class="bi bi-person-check me-2"></i> Approval Pegawai</span>
         </a>
         {% endif %}
     </nav>
@@ -155,7 +159,6 @@
     
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Sidebar toggle untuk mobile
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -164,26 +167,44 @@
             sidebarToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('show');
                 sidebarOverlay.classList.toggle('show');
+                
+                // CRITICAL: Enable scroll saat sidebar dibuka
+                if (sidebar.classList.contains('show')) {
+                    sidebar.style.overflowY = 'scroll';
+                    sidebar.scrollTop = 0;
+                    
+                    // Prevent body scroll
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
             });
             
             sidebarOverlay.addEventListener('click', function() {
                 sidebar.classList.remove('show');
                 sidebarOverlay.classList.remove('show');
+                document.body.style.overflow = '';
             });
         }
         
+        // CRITICAL: Force scroll di sidebar
+        if (sidebar) {
+            sidebar.addEventListener('touchstart', function() {
+                this.style.overflowY = 'scroll';
+            });
+            
+            sidebar.addEventListener('touchmove', function(e) {
+                // Allow scroll di sidebar
+                e.stopPropagation();
+            }, { passive: true });
+        }
+        
+        // Auto-hide alerts
         const alerts = document.querySelectorAll('.alert-dismissible');
         alerts.forEach(function(alert) {
             setTimeout(function() {
                 const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
-                
-                alert.addEventListener('closed.bs.alert', function() {
-                    const container = alert.closest('.messages-container');
-                    if (container && container.querySelectorAll('.alert').length === 0) {
-                        container.remove();
-                    }
-                });
             }, 5000);
         });
     });

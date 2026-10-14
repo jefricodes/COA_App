@@ -4,7 +4,6 @@ Django settings for core project.
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url
 
 load_dotenv()
 
@@ -29,6 +28,8 @@ INSTALLED_APPS = [
     'finance',
     'dashboard',
 ]
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -76,8 +77,9 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+
 # ==========================================
-# STATIC & MEDIA FILES (CLOUDFLARE R2 SETUP)
+# STATIC & MEDIA FILES (CLOUDFLARE R2 - S3 API)
 # ==========================================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
@@ -89,10 +91,20 @@ AWS_SECRET_ACCESS_KEY = os.getenv('R2_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('R2_BUCKET_NAME')
 AWS_S3_ENDPOINT_URL = os.getenv('R2_ENDPOINT_URL')
 AWS_S3_REGION_NAME = 'auto'
-AWS_DEFAULT_ACL = 'public-read'
 
-# settings.py
-<<<<<<< HEAD
+# Konfigurasi Storage
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+MEDIA_URL = ''
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 DATABASES = {
     'default': {
@@ -101,31 +113,6 @@ DATABASES = {
     }
 }
 
-=======
-
-if os.getenv('DATABASE_URL'):
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL'),
-            conn_max_age=600
-        )
-    }
-# JIKA TIDAK ADA (artinya sedang berjalan di laptop Anda sendiri, pakai MySQL lama)
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.getenv('DB_NAME'),
-            'USER': os.getenv('DB_USER'),
-            'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': os.getenv('DB_HOST'),
-            'PORT': os.getenv('DB_PORT'),
-        }
-    }
-
->>>>>>> 426149020de99bf96fd3896f728daf5c87df5018
-MEDIA_URL = '/media/' 
-MEDIA_ROOT = BASE_DIR /'media'
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -141,7 +128,7 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# Production Security (PythonAnywhere sudah handle SSL di edge, jadi False aman)
+# Production Security (PythonAnywhere)
 SECURE_SSL_REDIRECT = False 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True       

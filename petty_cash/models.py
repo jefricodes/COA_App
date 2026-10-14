@@ -23,7 +23,6 @@ class PettyCashEntry(models.Model):
     
     department = models.ForeignKey(Department, on_delete=models.PROTECT)
     
-    # DIPERBAIKI: Menggunakan settings.AUTH_USER_MODEL
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='petty_cash_entries')
     
     description = models.TextField()
@@ -51,8 +50,6 @@ class PettyCashEntry(models.Model):
             year = self.entry_date.year if self.entry_date else datetime.date.today().year
             dept_code = self.department.code
             prefix = "PCIN" if self.entry_type == 'in' else "PCOUT"
-            
-            # PERBAIKAN RACE CONDITION: Bungkus dalam transaction.atomic
             with transaction.atomic():
                 count = PettyCashEntry.objects.filter(
                     department=self.department,

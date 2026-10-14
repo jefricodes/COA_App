@@ -36,8 +36,6 @@ class JournalEntryLineForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        
-        # 1. Skip validasi jika baris di-mark untuk dihapus (DELETE)
         delete_key = f'{self.prefix}-DELETE' if self.prefix else 'DELETE'
         if self.data.get(delete_key) in ['on', 'True', 'true', '1']:
             return cleaned_data
@@ -47,7 +45,6 @@ class JournalEntryLineForm(forms.ModelForm):
         debit = cleaned_data.get('debit_amount')
         credit = cleaned_data.get('credit_amount')
 
-        # 2. Konversi nominal ke angka aman
         try:
             debit_val = float(debit) if debit else 0
         except (ValueError, TypeError):
@@ -58,11 +55,9 @@ class JournalEntryLineForm(forms.ModelForm):
         except (ValueError, TypeError):
             credit_val = 0
 
-        # 3. Jika BENAR-BENAR KOSONG, skip validasi (biarkan lolos)
         if not account and debit_val == 0 and credit_val == 0:
             return cleaned_data
 
-        # 4. Validasi jika ada data
         if not account:
             self.add_error('account', 'Akun wajib diisi.')
         if not description:

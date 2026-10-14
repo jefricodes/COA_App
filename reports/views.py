@@ -25,14 +25,10 @@ MONTH_NAMES = {
 @login_required
 @accounting_required
 def profit_loss_report(request):
-    """Laporan Profit & Loss (Laba Rugi)."""
     today = timezone.now().date()
     month = int(request.GET.get('month', today.month))
     year = int(request.GET.get('year', today.year))
-    
     current_month_name = MONTH_NAMES.get(month, '')
-    
-    # Hitung Pendapatan (Revenue)
     revenue_accounts = JournalEntryLine.objects.filter(
         journal__status='approved',
         journal__is_posted=True,
@@ -45,7 +41,6 @@ def profit_loss_report(request):
     
     total_revenue = sum(acc['total'] or Decimal('0') for acc in revenue_accounts)
     
-    # Hitung Beban (Expense)
     expense_accounts = JournalEntryLine.objects.filter(
         journal__status='approved',
         journal__is_posted=True,
@@ -103,10 +98,9 @@ def trial_balance(request):
         total_debit += (line['raw_debit'] or Decimal('0.00'))
         total_credit += (line['raw_credit'] or Decimal('0.00'))
         
-        # Hitung saldo untuk ditampilkan di kolom Balance
         if line['account__account_type'] in ['asset', 'expense']:
             balance = (line['raw_debit'] or Decimal('0.00')) - (line['raw_credit'] or Decimal('0.00'))
-        else: # liability, equity, revenue
+        else:
             balance = (line['raw_credit'] or Decimal('0.00')) - (line['raw_debit'] or Decimal('0.00'))
             
         trial_data.append({
@@ -118,7 +112,6 @@ def trial_balance(request):
             'balance': abs(balance),
         })
             
-    # Cek apakah balance (Total Debit HARUS sama dengan Total Kredit)
     is_balanced = total_debit == total_credit
     
     context = {
@@ -137,13 +130,10 @@ def trial_balance(request):
 @login_required
 @accounting_required
 def balance_sheet(request):
-    """Laporan Neraca (Balance Sheet) - Akumulatif sampai periode tertentu."""
+    """Report Neraca (Balance Sheet)"""
     today = timezone.now().date()
     year = int(request.GET.get('year', today.year))
     month = int(request.GET.get('month', today.month))
-    
-    # Tanggal akhir periode
-    import calendar
     last_day = calendar.monthrange(year, month)[1]
     end_date = datetime.date(year, month, last_day)
 
@@ -194,7 +184,6 @@ def balance_sheet(request):
             equities.append(data_row)
             total_equity += balance
 
-    # Hitung Laba Rugi Berjalan (YTD)
     revenue_ytd = JournalEntryLine.objects.filter(
         journal__status='approved', journal__is_posted=True, journal__entry_date__lte=end_date, account__account_type='revenue'
     ).aggregate(total=Sum('credit_amount'))['total'] or Decimal('0.00')
@@ -209,7 +198,7 @@ def balance_sheet(request):
     is_balanced = total_assets == (total_liabilities + total_equity_with_profit)
 
     # ==========================================
-    # LOGIKA EXPORT EXCEL (DIPINDAH KE BAWAH!)
+    # EXPORT EXCEL
     # ==========================================
     if request.GET.get('export') == 'excel':
         from openpyxl import Workbook
@@ -220,7 +209,6 @@ def balance_sheet(request):
         ws = wb.active
         ws.title = "Neraca"
         
-        # Styling
         header_font = Font(bold=True, size=14, color="FFFFFF")
         header_fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
         subheader_font = Font(bold=True, size=11, color="FFFFFF")
@@ -234,7 +222,6 @@ def balance_sheet(request):
             bottom=Side(style='thin')
         )
         
-        # Header utama
         ws.merge_cells('A1:B1')
         ws['A1'] = f"LAPORAN NERACA (BALANCE SHEET)"
         ws['A1'].font = header_font
@@ -246,7 +233,6 @@ def balance_sheet(request):
         ws['A2'].font = Font(italic=True, size=11)
         ws['A2'].alignment = Alignment(horizontal='center')
         
-        # ===== KOLOM ASET (Kolom A-B) =====
         ws['A4'] = "ASET"
         ws['A4'].font = subheader_font
         ws['A4'].fill = subheader_fill
@@ -268,7 +254,6 @@ def balance_sheet(request):
         ws.cell(row=row, column=1).fill = total_fill
         ws.cell(row=row, column=2).fill = total_fill
         
-        # ===== KOLOM LIABILITAS & EKUITAS (Kolom D-E) =====
         ws['D4'] = "LIABILITAS"
         ws['D4'].font = subheader_font
         ws['D4'].fill = subheader_fill
@@ -324,7 +309,6 @@ def balance_sheet(request):
         ws.cell(row=row, column=5).font = Font(bold=True, size=12)
         ws.cell(row=row, column=5).number_format = '#,##0'
         
-        # Set lebar kolom
         ws.column_dimensions['A'].width = 35
         ws.column_dimensions['B'].width = 20
         ws.column_dimensions['D'].width = 35
@@ -338,7 +322,7 @@ def balance_sheet(request):
         return response
 
     # ==========================================
-    # RENDER HTML (jika bukan export)
+    # RENDER HTML if not Export
     # ==========================================
     context = {
         'assets': assets, 'total_assets': total_assets,

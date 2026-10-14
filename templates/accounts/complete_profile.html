@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Lengkapi Profil - Accounting App{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="register-card card">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h3 class="mb-0"><i class="bi bi-person-vcard"></i> Lengkapi Data Diri</h3>
+            <small class="opacity-75">Data ini diperlukan untuk mengajukan Reimbursement & Petty Cash</small>
+        </div>
+
+        <div class="card-body p-4">
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Field: NIP / Employee ID -->
+                <div class="mb-3">
+                    <label for="id_employee_id" class="form-label fw-semibold">
+                        NIP / NIK / ID Karyawan <span class="text-danger">*</span>
+                    </label>
+                    {{ form.employee_id }}
+                    {% if form.employee_id.errors %}
+                        <div class="text-danger small mt-1">{{ form.employee_id.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Field: Nama Lengkap -->
+                <div class="mb-3">
+                    <label for="id_full_name" class="form-label fw-semibold">
+                        Nama Lengkap <span class="text-danger">*</span>
+                    </label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                        <div class="text-danger small mt-1">{{ form.full_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <!-- Field: Departemen -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_department" class="form-label fw-semibold">
+                            Departemen <span class="text-danger">*</span>
+                        </label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                            <div class="text-danger small mt-1">{{ form.department.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Field: Jabatan -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_position" class="form-label fw-semibold">
+                            Jabatan / Posisi
+                        </label>
+                        {{ form.position }}
+                        {% if form.position.errors %}
+                            <div class="text-danger small mt-1">{{ form.position.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Tombol Submit -->
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-3">
+                    <i class="bi bi-save"></i> Simpan Profil
+                </button>
+                
+                <a href="{% url 'dashboard:index' %}" class="btn btn-outline-secondary w-100 py-2 mt-2">
+                    Batal
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -19,12 +19,7 @@ class JournalEntryAdmin(admin.ModelAdmin):
     list_display = ['journal_number', 'entry_date', 'department', 'status', 'total_debit', 'total_credit', 'is_posted']
     list_filter = ['status', 'department', 'entry_date', 'is_posted']
     search_fields = ['journal_number', 'description']
-    
-    # PERBAIKAN: Hanya field yang BENAR-BENAR ADA di model JournalEntry
-    # Field yang ada: journal_number, created_by, created_at
-    # Field yang TIDAK ADA: updated_at, posted_by, posted_at
     readonly_fields = ['journal_number', 'created_by', 'created_at']
-    
     inlines = [JournalEntryLineInline]
 
     def total_debit(self, obj):

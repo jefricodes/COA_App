@@ -5,7 +5,6 @@ from decimal import Decimal
 class PettyCashEntryForm(forms.ModelForm):
     class Meta:
         model = PettyCashEntry
-        # Field department, account, dan status TIDAK ada di sini (diatur di views)
         fields = ['entry_type', 'entry_date', 'description', 'amount', 'receipt_file']
         widgets = {
             'entry_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),

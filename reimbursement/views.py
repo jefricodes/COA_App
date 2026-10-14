@@ -9,12 +9,11 @@ from .forms import ReimbursementForm
 
 @login_required
 def reimbursement_list(request):
-    """Tampilkan daftar reimbursement milik pegawai yang login."""
     employee_profile = getattr(request.user, 'employee_profile', None)
     
     if not employee_profile:
-        messages.error(request, 'Anda tidak terdaftar sebagai pegawai.')
-        return redirect('dashboard:index')
+        messages.warning(request, 'Silakan lengkapi data profil Anda terlebih dahulu.')
+        return redirect('accounts:complete_profile')
 
     reimbursements = ReimbursementRequest.objects.filter(employee=employee_profile)
     
@@ -27,11 +26,11 @@ def reimbursement_list(request):
 
 @login_required
 def reimbursement_create(request):
-    """Form untuk membuat request reimbursement baru."""
     employee_profile = getattr(request.user, 'employee_profile', None)
+    
     if not employee_profile:
-        messages.error(request, 'Anda tidak terdaftar sebagai pegawai.')
-        return redirect('dashboard:index')
+        messages.warning(request, 'Silakan lengkapi data profil Anda terlebih dahulu sebelum membuat request Reimbursement.')
+        return redirect('accounts:complete_profile')
 
     if request.method == 'POST':
         form = ReimbursementForm(request.POST, request.FILES)
@@ -54,11 +53,9 @@ def reimbursement_create(request):
 
 @login_required
 def reimbursement_detail(request, pk):
-    """Tampilkan detail satu reimbursement."""
     reimbursement = get_object_or_404(ReimbursementRequest, pk=pk)
     employee_profile = getattr(request.user, 'employee_profile', None)
 
-    # Cek permission: hanya pemilik atau Approver yang boleh lihat
     if reimbursement.employee != employee_profile and not request.user.is_approver:
         raise PermissionDenied('Anda tidak punya akses ke request ini.')
 
@@ -68,11 +65,9 @@ def reimbursement_detail(request, pk):
 
 @login_required
 def reimbursement_edit(request, pk):
-    """Edit reimbursement (hanya bisa jika status masih 'submitted')."""
     reimbursement = get_object_or_404(ReimbursementRequest, pk=pk)
     employee_profile = getattr(request.user, 'employee_profile', None)
 
-    # PERBAIKAN: Hanya pemilik yang boleh mengedit konten. Finance hanya approve/reject.
     if reimbursement.employee != employee_profile:
         raise PermissionDenied('Anda tidak berhak mengedit request ini.')
 

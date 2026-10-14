@@ -4,13 +4,11 @@ from .models import MonthlyClose, GeneralTransaction
 
 @admin.register(MonthlyClose)
 class MonthlyCloseAdmin(admin.ModelAdmin):
-    """Konfigurasi Admin untuk Tutup Buku Bulanan."""
     list_display = ['__str__', 'status', 'total_revenue', 'total_expense', 'net_profit', 'closed_by', 'closed_at']
     list_filter = ['status', 'period_year', 'period_month']
     search_fields = ['period_year', 'period_month']
     readonly_fields = ['closed_at', 'total_revenue', 'total_expense', 'net_profit']
     
-    # Agar field ditampilkan berpasangan di halaman detail
     fieldsets = (
         ('Periode', {
             'fields': ('period_month', 'period_year', 'status')
@@ -26,7 +24,6 @@ class MonthlyCloseAdmin(admin.ModelAdmin):
 
 @admin.register(GeneralTransaction)
 class GeneralTransactionAdmin(admin.ModelAdmin):
-    """Konfigurasi Admin untuk Transaksi Umum."""
     list_display = ['transaction_number', 'transaction_date', 'description', 'amount', 'transaction_type', 'department']
     list_filter = ['transaction_type', 'department', 'transaction_date']
     search_fields = ['transaction_number', 'description']

@@ -19,9 +19,14 @@ finance_approver_required = user_passes_test(is_finance_approver, login_url='/ac
 
 @login_required
 def petty_cash_list(request):
+    # CARA AMAN: getattr tidak akan memicu error RelatedObjectDoesNotExist
     employee_profile = getattr(request.user, 'employee_profile', None)
     
-    if employee_profile and not request.user.is_superuser:
+    if not employee_profile:
+        messages.warning(request, 'Silakan lengkapi data profil Anda terlebih dahulu.')
+        return redirect('accounts:complete_profile')
+    
+    if not request.user.is_superuser:
         entries = PettyCashEntry.objects.filter(department=employee_profile.department).select_related('created_by', 'department')
     else:
         entries = PettyCashEntry.objects.all().select_related('created_by', 'department')
@@ -32,9 +37,10 @@ def petty_cash_list(request):
 @login_required
 def petty_cash_create(request):
     employee_profile = getattr(request.user, 'employee_profile', None)
+    
     if not employee_profile:
-        messages.error(request, 'Anda tidak terdaftar sebagai pegawai. Hubungi Admin.')
-        return redirect('dashboard:index')
+        messages.warning(request, 'Silakan lengkapi data profil Anda terlebih dahulu sebelum membuat request Petty Cash.')
+        return redirect('accounts:complete_profile')
 
     if request.method == 'POST':
         form = PettyCashEntryForm(request.POST, request.FILES)
@@ -83,13 +89,11 @@ def finance_approve_petty_cash(request, pk):
         
         selected_account = ChartOfAccount.objects.get(id=account_id)
         
-        # Validasi: tidak boleh memilih akun Kas
         if selected_account.code.startswith('1-1001'):
             messages.error(request, 'Tidak boleh memilih akun Kas! Pilih akun sumber/tujuan.')
             return redirect('petty_cash:finance_review')
         
         try:
-            # Update entry
             entry.account_id = account_id
             entry.status = 'approved'
             entry.approved_by = request.user
@@ -123,13 +127,11 @@ def finance_approve_petty_cash(request, pk):
 
 @transaction.atomic
 def _create_journal_for_petty_cash(entry, user):
-    """Helper untuk membuat jurnal otomatis saat petty cash disetujui"""
     if not entry.account:
         raise ValidationError("Akun COA untuk transaksi ini belum ditentukan.")
         
     today = timezone.now().date()
-    
-    # Cari Akun Kas
+    s
     cash_account = ChartOfAccount.objects.filter(code='1-1001', is_active=True).first()
     
     if not cash_account:
@@ -137,7 +139,6 @@ def _create_journal_for_petty_cash(entry, user):
 
     print(f"DEBUG: Cash account found: {cash_account}")
 
-    # Buat Journal Entry
     journal = JournalEntry.objects.create(
         journal_number=f"JRN-PC-{today.strftime('%Y%m%d')}-{entry.id:04d}",
         entry_date=today,
@@ -153,7 +154,6 @@ def _create_journal_for_petty_cash(entry, user):
     print(f"DEBUG: Journal created: {journal.journal_number}")
     
     if entry.entry_type == 'out':
-        # Uang Keluar: Debit Beban, Kredit Kas
         JournalEntryLine.objects.create(
             journal=journal, account=entry.account,
             description=entry.description,
@@ -165,7 +165,6 @@ def _create_journal_for_petty_cash(entry, user):
             debit_amount=Decimal('0.00'), credit_amount=entry.amount
         )
     else:
-        # Uang Masuk: Debit Kas, Kredit Akun yang dipilih
         JournalEntryLine.objects.create(
             journal=journal, account=cash_account,
             description="Kas Masuk",
@@ -179,14 +178,12 @@ def _create_journal_for_petty_cash(entry, user):
     
     print(f"DEBUG: Journal lines created")
 
-    # Update total - PERIKSA apakah method ini ada di model Anda
     if hasattr(journal, '_calculate_totals'):
         journal._calculate_totals()
         journal.save(update_fields=['total_debit', 'total_credit'])
         print(f"DEBUG: Totals calculated - Debit: {journal.total_debit}, Credit: {journal.total_credit}")
     else:
         print(f"WARNING: Method _calculate_totals() tidak ada di model JournalEntry!")
-        # Hitung manual jika method tidak ada
         from django.db.models import Sum
         totals = journal.lines.aggregate(
             d=Sum('debit_amount'),
@@ -196,3 +193,28 @@ def _create_journal_for_petty_cash(entry, user):
         journal.total_credit = totals['c'] or Decimal('0.00')
         journal.save(update_fields=['total_debit', 'total_credit'])
         print(f"DEBUG: Totals calculated manually - Debit: {journal.total_debit}, Credit: {journal.total_credit}")
+
+@finance_approver_required
+@transaction.atomic
+def finance_reject_petty_cash(request, pk):
+
+    entry = get_object_or_404(PettyCashEntry, pk=pk)
+    
+    if entry.status != 'submitted':
+        messages.error(request, f'{entry.entry_number} sudah diproses sebelumnya.')
+        return redirect('petty_cash:finance_review')
+    
+    if request.method == 'POST':
+
+        rejection_reason = request.POST.get('rejection_reason', '')
+        
+        entry.status = 'rejected'
+        entry.approved_by = request.user  # Kita pakai field ini untuk mencatat siapa yang reject
+        entry.approved_at = timezone.now()
+        entry.rejection_reason = rejection_reason
+        entry.save()
+        
+        messages.success(request, f'{entry.entry_number} berhasil DITOLAK.')
+        return redirect('petty_cash:finance_review')
+    
+    return redirect('petty_cash:finance_review')

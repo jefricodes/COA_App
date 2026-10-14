@@ -15,14 +15,12 @@ def dashboard_index(request):
     context = {}
 
     # ==========================================
-    # 1. LOGIKA UNTUK MANAGER / APPROVER / FINANCE
+    # 1. FOR MANAGER / APPROVER / FINANCE
     # ==========================================
     if getattr(user, 'is_approver', False) or getattr(user, 'is_accountant', False):
-        # Antrian approval
         context['pending_reimbursements'] = ReimbursementRequest.objects.filter(status='submitted').count()
         context['pending_petty_cash'] = PettyCashEntry.objects.filter(status='submitted').count()
         
-        # Filter Jurnal yang sudah posted
         posted_lines = JournalEntryLine.objects.filter(
             journal__status='approved',
             journal__is_posted=True,
@@ -30,7 +28,6 @@ def dashboard_index(request):
             journal__period_year=today.year
         )
 
-        # Hitung Pendapatan & Beban
         revenue = posted_lines.filter(account__account_type='revenue').aggregate(total=Sum('credit_amount'))['total'] or Decimal('0.00')
         expense = posted_lines.filter(account__account_type='expense').aggregate(total=Sum('debit_amount'))['total'] or Decimal('0.00')
         
@@ -38,7 +35,6 @@ def dashboard_index(request):
         context['total_expense'] = expense
         context['net_profit'] = revenue - expense
 
-        # Hitung Total Saldo Kas (Aset Lancar - Kode 1-xxxx)
         all_posted_lines = JournalEntryLine.objects.filter(
             journal__status='approved',
             journal__is_posted=True,
@@ -51,7 +47,7 @@ def dashboard_index(request):
         context['total_cash_balance'] = total_asset_debit - total_asset_credit
 
     # ==========================================
-    # 2. LOGIKA UNTUK STAFF BIASA
+    # 2. FOR STAFF
     # ==========================================
     else:
         employee_profile = getattr(user, 'employee_profile', None)

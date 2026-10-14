@@ -3,137 +3,60 @@
 
 {% block content %}
 <div class="auth-wrapper">
-    <div class="register-card card">
+    <div class="login-card card"> <!-- Menggunakan login-card agar ukurannya pas dan tidak terlalu lebar -->
         <div class="card-header bg-primary text-white text-center py-3">
-            <h3 class="mb-0"><i class="bi bi-person-plus"></i> Registrasi Pegawai</h3>
-            <small class="opacity-75">Buat akun baru untuk mengakses sistem</small>
+            <h3 class="mb-0"><i class="bi bi-person-plus"></i> Buat Akun Baru</h3>
+            <small class="opacity-75">Cukup dengan Email & Password. Data lengkap diisi nanti.</small>
         </div>
 
         <div class="card-body p-4">
             <form method="POST" novalidate>
                 {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    {% for error in form.non_field_errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
                 {% endif %}
 
-                <!-- Data Akun Login -->
-                <div class="section-title">
-                    <i class="bi bi-shield-lock"></i> Data Akun Login
-                </div>
-
+                <!-- Field: Email -->
                 <div class="mb-3">
-                    <label for="id_username" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
-                    <input type="text" name="username" id="id_username" class="form-control" 
-                           value="{{ form.username.value|default:'' }}" required>
-                    {% if form.username.errors %}
-                        <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-3">
-                    <label for="id_email" class="form-label fw-semibold">Email</label>
+                    <label for="id_email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
                     <input type="email" name="email" id="id_email" class="form-control" 
-                           value="{{ form.email.value|default:'' }}">
-                </div>
-
-                <div class="mb-3">
-                    <label for="id_role" class="form-label fw-semibold">Role / Jabatan Sistem <span class="text-danger">*</span></label>
-                    <select name="role" id="id_role" class="form-select" required>
-                        <option value="">-- Pilih Role --</option>
-                        {% for value, label in form.role.field.choices %}
-                            {% if value %}
-                                <option value="{{ value }}" {% if form.role.value == value %}selected{% endif %}>
-                                    {{ label }}
-                                </option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                    {% if form.role.errors %}
-                        <div class="text-danger small mt-1">{{ form.role.errors.0 }}</div>
+                           value="{{ form.email.value|default:'' }}" placeholder="nama@perusahaan.com" required>
+                    {% if form.email.errors %}
+                        <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
                     {% endif %}
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_password1" class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
-                        <input type="password" name="password1" id="id_password1" class="form-control" required>
-                        {% if form.password1.errors %}
-                            <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="id_password2" class="form-label fw-semibold">Konfirmasi Password <span class="text-danger">*</span></label>
-                        <input type="password" name="password2" id="id_password2" class="form-control" required>
-                        {% if form.password2.errors %}
-                            <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Data Pegawai -->
-                <div class="section-title">
-                    <i class="bi bi-person-badge"></i> Data Pegawai
-                </div>
-
+                <!-- Field: Password -->
                 <div class="mb-3">
-                    <label for="id_employee_id" class="form-label fw-semibold">NIP / Employee ID <span class="text-danger">*</span></label>
-                    <input type="text" name="employee_id" id="id_employee_id" class="form-control" 
-                           value="{{ form.employee_id.value|default:'' }}" required>
-                    {% if form.employee_id.errors %}
-                        <div class="text-danger small mt-1">{{ form.employee_id.errors.0 }}</div>
+                    <label for="id_password1" class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
+                    <input type="password" name="password1" id="id_password1" class="form-control" required>
+                    {% if form.password1.errors %}
+                        <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
+                    {% endif %}
+                    {% if form.password1.help_text %}
+                        <ul class="form-text text-muted small mt-1 mb-0">
+                            {{ form.password1.help_text|safe }}
+                        </ul>
                     {% endif %}
                 </div>
 
-                <div class="mb-3">
-                    <label for="id_full_name" class="form-label fw-semibold">Nama Lengkap <span class="text-danger">*</span></label>
-                    <input type="text" name="full_name" id="id_full_name" class="form-control" 
-                           value="{{ form.full_name.value|default:'' }}" required>
-                    {% if form.full_name.errors %}
-                        <div class="text-danger small mt-1">{{ form.full_name.errors.0 }}</div>
+                <!-- Field: Konfirmasi Password -->
+                <div class="mb-4">
+                    <label for="id_password2" class="form-label fw-semibold">Konfirmasi Password <span class="text-danger">*</span></label>
+                    <input type="password" name="password2" id="id_password2" class="form-control" required>
+                    {% if form.password2.errors %}
+                        <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
                     {% endif %}
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_position" class="form-label fw-semibold">Jabatan</label>
-                        <input type="text" name="position" id="id_position" class="form-control" 
-                               value="{{ form.position.value|default:'' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="id_department" class="form-label fw-semibold">Departemen <span class="text-danger">*</span></label>
-                        <select name="department" id="id_department" class="form-select" required>
-                            <option value="">Pilih Departemen</option>
-                            {% for dept in form.department.field.queryset %}
-                                <option value="{{ dept.id }}" {% if form.department.value == dept.id %}selected{% endif %}>
-                                    {{ dept.name }} ({{ dept.code }})
-                                </option>
-                            {% endfor %}
-                        </select>
-                        {% if form.department.errors %}
-                            <div class="text-danger small mt-1">{{ form.department.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_first_name" class="form-label fw-semibold">Nama Depan</label>
-                        <input type="text" name="first_name" id="id_first_name" class="form-control" 
-                               value="{{ form.first_name.value|default:'' }}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="id_last_name" class="form-label fw-semibold">Nama Belakang</label>
-                        <input type="text" name="last_name" id="id_last_name" class="form-control" 
-                               value="{{ form.last_name.value|default:'' }}">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-3">
+                <!-- Tombol Submit -->
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
                     <i class="bi bi-person-check"></i> Daftar Sekarang
                 </button>
             </form>

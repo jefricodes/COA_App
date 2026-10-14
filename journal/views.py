@@ -21,7 +21,6 @@ accounting_staff_required = user_passes_test(is_accounting_staff, login_url='/ac
 def journal_list(request):
 
     user = request.user
-    
     if user.is_superuser:
         entries = JournalEntry.objects.select_related('created_by', 'department').all()
     else:
@@ -184,13 +183,7 @@ def journal_update(request, pk):
         if form.is_valid() and formset.is_valid():
             try:
                 with transaction.atomic():
-                    # Update jurnal utama
                     updated_journal = form.save()
-                    
-                    # Formset.save() otomatis handle:
-                    # - Update lines yang ada
-                    # - Hapus lines yang di-mark DELETE
-                    # - Tambah lines baru
                     lines = formset.save(commit=False)
                     for line in lines:
                         line.journal = updated_journal
@@ -198,15 +191,11 @@ def journal_update(request, pk):
                             continue
                         line.save()
                     
-                    # Hapus lines yang di-mark delete
                     for line in formset.deleted_objects:
                         line.delete()
                     
-                    # Hitung ulang total
                     updated_journal._calculate_totals()
                     updated_journal.save(update_fields=['total_debit', 'total_credit'])
-                    
-                    # Validasi
                     if updated_journal.total_debit != updated_journal.total_credit:
                         raise ValidationError("Total Debit dan Kredit harus seimbang!")
                     

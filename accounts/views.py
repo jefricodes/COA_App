@@ -3,11 +3,12 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.messages import get_messages
-from .forms import UserRegistrationForm, CustomAuthenticationForm
+from .forms import SimpleRegistrationForm, CustomAuthenticationForm, EmployeeProfileForm
 from .models import CustomUser
 
 
 def login_view(request):
+    from django.contrib.messages import get_messages
     storage = get_messages(request)
     for _ in storage:
         pass
@@ -17,6 +18,7 @@ def login_view(request):
 
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
+        
         if form.is_valid():
             user = form.get_user()
             
@@ -30,7 +32,7 @@ def login_view(request):
             next_url = request.GET.get('next', 'dashboard:index')
             return redirect(next_url)
         else:
-            messages.error(request, 'Username atau password salah, atau akun belum diaktifkan.')
+            messages.error(request, 'Email/Username atau password yang Anda masukkan salah.')
     else:
         form = CustomAuthenticationForm()
 
@@ -48,48 +50,50 @@ def register_view(request):
         return redirect('dashboard:index')
 
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
+        form = SimpleRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            
             messages.success(
                 request,
-                'Registrasi berhasil! Akun Anda sedang menunggu persetujuan dari Administrator. '
+                'Registrasi berhasil! Silakan login. Anda akan diminta melengkapi data profil setelah masuk.'
             )
             return redirect('accounts:login')
-        else:
-            error_messages = []
-            for field, errors in form.errors.items():
-                if field == '__all__':
-                    error_messages.extend(errors)
-                else:
-                    field_labels = {
-                        'username': 'Username',
-                        'email': 'Email',
-                        'password1': 'Password',
-                        'password2': 'Konfirmasi Password',
-                        'employee_id': 'NIP/Employee ID',
-                        'full_name': 'Nama Lengkap',
-                        'position': 'Jabatan',
-                        'department': 'Departemen',
-                        'first_name': 'Nama Depan',
-                        'last_name': 'Nama Belakang',
-                    }
-                    label = field_labels.get(field, field)
-                    for error in errors:
-                        error_messages.append(f"{label}: {error}")
-            
-            messages.error(request, 'Data yang Anda masukkan tidak valid. Silakan periksa kembali form pendaftaran.')
-            
     else:
-        form = UserRegistrationForm()
+        form = SimpleRegistrationForm()
 
     return render(request, 'accounts/register.html', {'form': form})
 
 
+@login_required
+def complete_profile_view(request):
+    if hasattr(request.user, 'employee_profile'):
+        return redirect('dashboard:index')
+
+    if request.method == 'POST':
+        form = EmployeeProfileForm(request.POST)
+        if form.is_valid():
+
+            employee = form.save(commit=False)
+            employee.user = request.user
+            employee.is_active = True
+            employee.save()
+            
+            emp_id_value = form.cleaned_data.get('employee_id')
+            if emp_id_value:
+                request.user.employee_id = emp_id_value
+                request.user.save(update_fields=['employee_id'])
+
+            messages.success(request, 'Data profil berhasil disimpan! Anda sekarang dapat membuat request.')
+            return redirect('dashboard:index')
+    else:
+        initial_data = {'employee_id': request.user.employee_id}
+        form = EmployeeProfileForm(initial=initial_data)
+
+    return render(request, 'accounts/complete_profile.html', {'form': form})
+
+
 def is_superuser_check(user):
     return user.is_authenticated and user.is_superuser
-
 
 @login_required
 @user_passes_test(is_superuser_check)

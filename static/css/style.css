@@ -7,6 +7,11 @@
     box-sizing: border-box;
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
 body {
     background-color: #f8f9fa;
     overflow-x: hidden;
@@ -27,32 +32,95 @@ body {
 }
 
 /* ==========================================
-   3. SIDEBAR DESKTOP
+   3. SIDEBAR - FINAL VERSION
    ========================================== */
 .sidebar {
-    min-height: 100vh;
     background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
     position: fixed;
     top: 70px;
+    bottom: 0;
     left: 0;
-    width: 250px;
+    width: 260px;
     z-index: 1000;
-    transition: all 0.3s;
+    transition: transform 0.3s ease;
+    padding-bottom: 20px;
+    
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
 }
 
+/* Custom scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Firefox scrollbar */
+.sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.05);
+}
+
+/* Sidebar links */
 .sidebar a {
     color: rgba(255,255,255,0.8);
-    padding: 12px 20px;
-    display: block;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     text-decoration: none;
-    transition: all 0.3s;
-    border-left: 3px solid transparent;
+    transition: all 0.2s ease-in-out;
+    border-left: 4px solid transparent;
+    gap: 8px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
-.sidebar a:hover, .sidebar a.active {
+.sidebar a:hover {
     background: rgba(255,255,255,0.1);
     color: white;
-    border-left-color: #fff;
+    border-left-color: rgba(255,255,255,0.5);
+}
+
+/* Active state */
+.sidebar a.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff !important;
+    border-left: 4px solid #0d6efd;
+    font-weight: 600;
+}
+
+.sidebar a.active i {
+    color: #0d6efd;
+}
+
+.sidebar a span {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Badge - BIARKAN BOOTSTRAP HANDLE (jangan override) */
+.sidebar .badge {
+    flex-shrink: 0;
+    margin-left: 8px;
 }
 
 .sidebar h6 {
@@ -62,6 +130,7 @@ body {
     letter-spacing: 1px;
     padding: 15px 20px 5px;
     margin: 0;
+    font-weight: 600;
 }
 
 /* ==========================================
@@ -71,15 +140,26 @@ body {
     margin-left: 0;
     padding-top: 70px;
     min-height: 100vh;
-    transition: all 0.3s;
+    transition: margin-left 0.3s ease;
+    width: 100%;
+    overflow-x: auto;
 }
 
 .main-content.with-sidebar {
-    margin-left: 250px;
+    margin-left: 260px;
+}
+
+/* Container di dalam main content */
+.main-content .container-fluid {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 /* ==========================================
-   5. MESSAGES CONTAINER (Fixed Position)
+   5. MESSAGES CONTAINER
    ========================================== */
 .messages-container {
     position: fixed;
@@ -95,9 +175,9 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* ========================================== */
-/* LOGIN PAGE STYLES                          */
-/* ========================================== */
+/* ==========================================
+   6. LOGIN PAGE STYLES
+   ========================================== */
 .login-card {
     width: 100%;
     max-width: 450px;
@@ -164,9 +244,9 @@ body {
     text-decoration: underline;
 }
 
-/* ========================================== */
-/* REGISTER PAGE STYLES                       */
-/* ========================================== */
+/* ==========================================
+   7. REGISTER PAGE STYLES
+   ========================================== */
 .register-card {
     width: 100%;
     max-width: 600px;
@@ -188,7 +268,6 @@ body {
     margin-right: 0.5rem;
 }
 
-/* Override untuk auth wrapper */
 .auth-wrapper {
     min-height: calc(100vh - 70px) !important;
     padding: 2rem 1rem !important;
@@ -198,26 +277,42 @@ body {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
 }
 
-/* Khusus login card, center vertikal */
 .auth-wrapper:has(.login-card) {
     align-items: center;
 }
 
 /* ==========================================
-   7. MOBILE RESPONSIVE
+   8. MOBILE RESPONSIVE
    ========================================== */
 @media (max-width: 767.98px) {
     .sidebar {
-        transform: translateX(-100%);
-        width: 250px;
+        position: fixed !important;
+        top: 70px !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 300px !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        transform: translateX(-100%) !important;
+        z-index: 1000 !important;
+        -webkit-overflow-scrolling: touch !important;
     }
     
     .sidebar.show {
-        transform: translateX(0);
+        transform: translateX(0) !important;
     }
     
     .main-content.with-sidebar {
-        margin-left: 0;
+        margin-left: 0 !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+    }
+    
+    .main-content .container-fluid {
+        padding-right: 10px !important;
+        padding-left: 10px !important;
     }
     
     .messages-container {
@@ -240,16 +335,60 @@ body {
     .sidebar-overlay.show {
         display: block;
     }
+    
+    .sidebar a {
+        padding: 12px 15px !important;
+        font-size: 0.9rem;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+    }
+    
+    .sidebar a span {
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Badge - biarkan Bootstrap handle */
+    .sidebar .badge {
+        flex-shrink: 0;
+        margin-left: 8px;
+    }
 }
 
 @media (min-width: 768px) {
+    .sidebar {
+        transform: translateX(0) !important;
+    }
+    
     .sidebar-overlay {
         display: none !important;
+    }
+    
+    .main-content.with-sidebar {
+        margin-left: 260px !important;
+        width: calc(100% - 260px) !important;
+    }
+    
+    .main-content {
+        overflow-x: auto !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .sidebar {
+        width: 240px !important;
+    }
+    
+    .main-content.with-sidebar {
+        margin-left: 240px !important;
+        width: calc(100% - 240px) !important;
     }
 }
 
 /* ==========================================
-   8. UTILITIES & BADGES
+   9. UTILITIES & BADGES
    ========================================== */
 .status-badge {
     padding: 4px 12px;
@@ -258,7 +397,6 @@ body {
     font-weight: 500;
 }
 
-/* Animasi untuk messages alert */
 .alert {
     animation: slideDown 0.3s ease-out;
 }
@@ -274,7 +412,6 @@ body {
     }
 }
 
-/* Styling khusus untuk alert di dashboard */
 .main-content .alert {
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.95);
@@ -298,4 +435,82 @@ body {
 .main-content .alert-danger {
     background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
     border-left: 4px solid #dc3545;
+}
+
+/* ==========================================
+   9. UTILITIES & BADGES
+   ========================================== */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.alert {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.main-content .alert {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.main-content .alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-left: 4px solid #28a745;
+}
+
+.main-content .alert-info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    border-left: 4px solid #17a2b8;
+}
+
+.main-content .alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-left: 4px solid #ffc107;
+}
+
+.main-content .alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-left: 4px solid #dc3545;
+}
+
+/* ==========================================
+   PERBAIKAN BADGE - TAMBAHKAN INI DI PALING BAWAH
+   ========================================== */
+.sidebar a {
+    justify-content: space-between !important;
+}
+
+.sidebar a > span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.sidebar .badge {
+    flex-shrink: 0 !important;
+    margin-left: 10px !important;
+    padding: 0.25em 0.5em !important;
+    font-size: 0.75rem !important;
+    line-height: 1 !important;
+    min-width: 1.5em !important;
+    width: auto !important;
+    max-width: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
 }
